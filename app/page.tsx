@@ -218,8 +218,7 @@ export default function FinancialDashboard() {
                 <p>
                   This application takes an input of "leading industrial stocks" as determined by the user. It
                   calculates the quarterly revenue divided by the national treasury interest rate for each stock, and
-                  returns the average calculated value. You may provide a tolerance, perhaps about the interest rate,
-                  above and below the average value.
+                  returns the group average as well as individual values for comparison.
                 </p>
                 <p>
                   <strong>Investment Strategy:</strong> If you are implementing this strategy you buy when stocks are
