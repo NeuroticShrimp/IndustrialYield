@@ -194,10 +194,6 @@ export default function FinancialDashboard() {
     return sorted
   }
 
-  const groupAverage = valuations.length > 0 ? valuations.reduce((sum, v) => sum + v.myValue, 0) / valuations.length : 0
-  const upperBound = groupAverage * (1 + percentageRange / 100)
-  const lowerBound = groupAverage * (1 - percentageRange / 100)
-
   const displayValuations = getSortedValuations()
 
   return (
@@ -353,39 +349,6 @@ export default function FinancialDashboard() {
           </CardContent>
         </Card>
 
-        {valuations.length > 0 && (
-          <Card className="border-primary bg-primary/5">
-            <CardHeader>
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                Group Average - Revenue / Interest Rate
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="text-6xl font-bold text-primary text-balance">
-                ${(groupAverage / 1_000_000_000).toFixed(2)}B
-              </div>
-              <div className="text-sm text-muted-foreground">
-                Based on {valuations.length} ticker{valuations.length !== 1 ? "s" : ""}
-              </div>
-
-              <div className="pt-4 border-t space-y-2">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-muted-foreground">Upper Bound (+{percentageRange}%):</span>
-                  <span className="text-lg font-bold text-chart-4 font-mono">
-                    ${(upperBound / 1_000_000_000).toFixed(2)}B
-                  </span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-muted-foreground">Lower Bound (-{percentageRange}%):</span>
-                  <span className="text-lg font-bold text-chart-1 font-mono">
-                    ${(lowerBound / 1_000_000_000).toFixed(2)}B
-                  </span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
         {/* Loading State */}
         {loading && (
           <div className="text-center py-12">
@@ -394,7 +357,7 @@ export default function FinancialDashboard() {
           </div>
         )}
 
-        {!loading && valuations.length > 0 && (
+        {!loading && displayValuations.length > 0 && (
           <>
             <div className="flex items-center justify-between">
               <h2 className="text-2xl font-bold">Ticker Analysis</h2>
@@ -425,8 +388,14 @@ export default function FinancialDashboard() {
                 <TickerCard
                   key={valuation.ticker}
                   valuation={valuation}
-                  groupUpperBound={upperBound}
-                  groupLowerBound={lowerBound}
+                  groupUpperBound={
+                    (displayValuations.reduce((sum, v) => sum + v.myValue, 0) / displayValuations.length) *
+                    (1 + percentageRange / 100)
+                  }
+                  groupLowerBound={
+                    (displayValuations.reduce((sum, v) => sum + v.myValue, 0) / displayValuations.length) *
+                    (1 - percentageRange / 100)
+                  }
                 />
               ))}
             </div>

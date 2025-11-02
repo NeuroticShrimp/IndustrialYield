@@ -3,7 +3,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { TrendingUp, TrendingDown, Calculator, ArrowUp, ArrowDown, Minus, Info } from "lucide-react"
+import { Calculator, ArrowUp, ArrowDown, Minus, Info } from "lucide-react"
 import type { TickerValuation } from "@/lib/types"
 import { CalculationModal } from "./calculation-modal"
 import { CompanyInfoModal } from "./company-info-modal"
@@ -19,8 +19,6 @@ export function TickerCard({ valuation, groupUpperBound, groupLowerBound }: Tick
   const { ticker, myValue, ytdRevenue, interestRate, outstandingShares } = valuation
   const [showCalculation, setShowCalculation] = useState(false)
   const [showCompanyInfo, setShowCompanyInfo] = useState(false)
-
-  const isPositive = myValue > ytdRevenue
 
   const isAboveUpper = myValue > groupUpperBound
   const isBelowLower = myValue < groupLowerBound
@@ -68,10 +66,6 @@ export function TickerCard({ valuation, groupUpperBound, groupLowerBound }: Tick
               <Button variant="ghost" size="icon" onClick={() => setShowCalculation(true)} className="h-8 w-8">
                 <Calculator className="h-4 w-4" />
               </Button>
-              <Badge variant={isPositive ? "default" : "secondary"}>
-                {isPositive ? <TrendingUp className="h-3 w-3 mr-1" /> : <TrendingDown className="h-3 w-3 mr-1" />}
-                {((myValue / ytdRevenue - 1) * 100).toFixed(1)}%
-              </Badge>
             </div>
           </div>
         </CardHeader>
