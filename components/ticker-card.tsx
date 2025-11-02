@@ -26,6 +26,10 @@ export function TickerCard({ valuation, groupUpperBound, groupLowerBound }: Tick
   const isBelowLower = myValue < groupLowerBound
   const isWithinBounds = !isAboveUpper && !isBelowLower
 
+  const formatInBillions = (value: number) => {
+    return (value / 1_000_000_000).toFixed(2)
+  }
+
   const getPositionBadge = () => {
     if (isAboveUpper) {
       return (
@@ -75,10 +79,8 @@ export function TickerCard({ valuation, groupUpperBound, groupLowerBound }: Tick
           <div className="flex justify-center">{getPositionBadge()}</div>
 
           <div>
-            <div className="text-sm text-muted-foreground mb-1">Revenue Per Share (Interest Adjusted)</div>
-            <div className="text-3xl font-bold text-primary">
-              ${myValue.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-            </div>
+            <div className="text-sm text-muted-foreground mb-1">Revenue / Interest Rate</div>
+            <div className="text-3xl font-bold text-primary">${formatInBillions(myValue)}B</div>
           </div>
 
           <div className="space-y-2 text-sm">

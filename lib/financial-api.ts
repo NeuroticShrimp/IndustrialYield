@@ -249,7 +249,7 @@ export function calculateValuation(
   const quartersReported = ytdData.length
   const quarterlyRevenue = ytdRevenue / quartersReported
 
-  const myValue = (quarterlyRevenue) / outstandingShares * interestRate
+  const myValue = quarterlyRevenue / interestRate
 
   return {
     ticker,

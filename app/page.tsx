@@ -217,9 +217,9 @@ export default function FinancialDashboard() {
               <div className="space-y-4 text-sm leading-relaxed">
                 <p>
                   This application takes an input of "leading industrial stocks" as determined by the user. It
-                  determines the amount of revenue per share of a stock, adjusts it for the national treasury interest
-                  rate, and returns the average revenue per share. You may provide a tolerance, perhaps about the
-                  interest rate, above and below the average value.
+                  calculates the quarterly revenue divided by the national treasury interest rate for each stock, and
+                  returns the average calculated value. You may provide a tolerance, perhaps about the interest rate,
+                  above and below the average value.
                 </p>
                 <p>
                   <strong>Investment Strategy:</strong> If you are implementing this strategy you buy when stocks are
@@ -358,12 +358,12 @@ export default function FinancialDashboard() {
           <Card className="border-primary bg-primary/5">
             <CardHeader>
               <CardTitle className="text-sm font-medium text-muted-foreground">
-                Group Average - Revenue Per Share (Interest Adjusted)
+                Group Average - Revenue / Interest Rate
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="text-6xl font-bold text-primary text-balance">
-                ${groupAverage.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                ${(groupAverage / 1_000_000_000).toFixed(2)}B
               </div>
               <div className="text-sm text-muted-foreground">
                 Based on {valuations.length} ticker{valuations.length !== 1 ? "s" : ""}
@@ -373,13 +373,13 @@ export default function FinancialDashboard() {
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-muted-foreground">Upper Bound (+{percentageRange}%):</span>
                   <span className="text-lg font-bold text-chart-4 font-mono">
-                    ${upperBound.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    ${(upperBound / 1_000_000_000).toFixed(2)}B
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-muted-foreground">Lower Bound (-{percentageRange}%):</span>
                   <span className="text-lg font-bold text-chart-1 font-mono">
-                    ${lowerBound.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    ${(lowerBound / 1_000_000_000).toFixed(2)}B
                   </span>
                 </div>
               </div>
