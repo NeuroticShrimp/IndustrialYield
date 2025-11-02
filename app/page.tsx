@@ -383,6 +383,56 @@ export default function FinancialDashboard() {
               </Button>
             </div>
 
+            <Card className="border-primary bg-primary/5">
+              <CardHeader>
+                <CardTitle className="text-2xl">Group Average - Revenue / Interest Rate</CardTitle>
+                <CardDescription>Average calculated value across all tickers</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="text-center space-y-2">
+                  <div className="text-5xl font-bold text-primary">
+                    $
+                    {(
+                      displayValuations.reduce((sum, v) => sum + v.myValue, 0) /
+                      displayValuations.length /
+                      1_000_000_000
+                    ).toFixed(2)}
+                    B
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    Based on {displayValuations.length} ticker{displayValuations.length !== 1 ? "s" : ""}
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4 pt-4 border-t">
+                  <div className="space-y-1">
+                    <p className="text-sm font-medium text-muted-foreground">Upper Bound (+{percentageRange}%)</p>
+                    <p className="text-2xl font-bold text-green-600">
+                      $
+                      {(
+                        ((displayValuations.reduce((sum, v) => sum + v.myValue, 0) / displayValuations.length) *
+                          (1 + percentageRange / 100)) /
+                        1_000_000_000
+                      ).toFixed(2)}
+                      B
+                    </p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-sm font-medium text-muted-foreground">Lower Bound (-{percentageRange}%)</p>
+                    <p className="text-2xl font-bold text-chart-1">
+                      $
+                      {(
+                        ((displayValuations.reduce((sum, v) => sum + v.myValue, 0) / displayValuations.length) *
+                          (1 - percentageRange / 100)) /
+                        1_000_000_000
+                      ).toFixed(2)}
+                      B
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {displayValuations.map((valuation) => (
                 <TickerCard
