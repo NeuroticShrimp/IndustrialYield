@@ -209,7 +209,7 @@ export default function FinancialDashboard() {
             <h1 className="text-4xl font-bold tracking-tight text-balance">
               Leading Industrial Stocks with Interest Rates Analysis
             </h1>
-            <p className="text-muted-foreground text-lg">Revenue per stock with treasury adjustments</p>
+            <p className="text-muted-foreground text-lg">Revenue with treasury adjustments</p>
           </div>
 
           <Card className="border-accent bg-accent/5">
