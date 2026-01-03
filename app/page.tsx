@@ -13,6 +13,7 @@ import type { TickerValuation } from "@/lib/types"
 interface TickerGroup {
   name: string
   tickers: string[]
+  isDefault?: boolean
 }
 
 type SortOrder = "none" | "asc" | "desc"
@@ -44,7 +45,7 @@ const DEFAULT_GROUP: TickerGroup = {
 }
 
 export default function FinancialDashboard() {
-  const [groups, setGroups] = useState<TickerGroup[]>([DEFAULT_GROUP])
+  const [groups, setGroups] = useState<TickerGroup[]>([{ ...DEFAULT_GROUP, isDefault: true }])
   const [currentGroupIndex, setCurrentGroupIndex] = useState(0)
   const [newGroupName, setNewGroupName] = useState("")
   const [showNewGroupInput, setShowNewGroupInput] = useState(false)
@@ -63,19 +64,35 @@ export default function FinancialDashboard() {
       try {
         const parsed = JSON.parse(savedGroups)
         console.log("[v0] Parsed saved groups:", parsed)
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          setGroups(parsed)
+        if (Array.isArray(parsed)) {
+          if (!parsed.some(g => g.isDefault)) {
+            parsed.push({ ...DEFAULT_GROUP, isDefault: true })
+          } else {
+            // Check if the default group is missing any original tickers
+            const defaultGroupIndex = parsed.findIndex(g => g.isDefault)
+            if (defaultGroupIndex !== -1) {
+              const defaultGroup = parsed[defaultGroupIndex]
+              if (!DEFAULT_GROUP.tickers.every(t => defaultGroup.tickers.includes(t))) {
+                parsed[defaultGroupIndex] = { ...DEFAULT_GROUP, isDefault: true }
+              }
+            }
+          }
+          if (parsed.length > 0) {
+            setGroups(parsed)
+          } else {
+            setGroups([{ ...DEFAULT_GROUP, isDefault: true }])
+          }
         } else {
           console.log("[v0] No valid saved groups, using default")
-          setGroups([DEFAULT_GROUP])
+          setGroups([{ ...DEFAULT_GROUP, isDefault: true }])
         }
       } catch (error) {
         console.error("[v0] Error parsing saved groups:", error)
-        setGroups([DEFAULT_GROUP])
+        setGroups([{ ...DEFAULT_GROUP, isDefault: true }])
       }
     } else {
       console.log("[v0] No saved groups found, using default")
-      setGroups([DEFAULT_GROUP])
+      setGroups([{ ...DEFAULT_GROUP, isDefault: true }])
     }
   }, [])
 
@@ -155,6 +172,10 @@ export default function FinancialDashboard() {
   }
 
   const deleteGroup = (index: number) => {
+    if (groups[index].isDefault) {
+      alert("Cannot delete the default group.")
+      return
+    }
     if (groups.length === 1) {
       alert("Cannot delete the last group. Create a new group first.")
       return
@@ -244,22 +265,24 @@ export default function FinancialDashboard() {
           <CardContent className="space-y-4">
             <div className="flex flex-wrap gap-2">
               {groups.map((group, index) => (
-                <div key={index} className="flex items-center gap-1">
-                  <Button
-                    variant={currentGroupIndex === index ? "default" : "outline"}
-                    onClick={() => setCurrentGroupIndex(index)}
-                    className="rounded-r-none"
-                  >
+                 <div key={index} className="flex items-center gap-0">
+                   <Button
+                     variant={currentGroupIndex === index ? "default" : "outline"}
+                     onClick={() => setCurrentGroupIndex(index)}
+                     className="rounded-r-none h-10"
+                   >
                     {group.name} ({group.tickers.length})
                   </Button>
-                  <Button
-                    variant={currentGroupIndex === index ? "default" : "outline"}
-                    size="icon"
-                    onClick={() => deleteGroup(index)}
-                    className="rounded-l-none border-l-0 h-10 w-10"
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
+                  {!group.isDefault && (
+                    <Button
+                      variant={currentGroupIndex === index ? "default" : "outline"}
+                      size="icon"
+                      onClick={() => deleteGroup(index)}
+                      className="rounded-l-none border-l-0 h-10 w-10"
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  )}
                 </div>
               ))}
             </div>

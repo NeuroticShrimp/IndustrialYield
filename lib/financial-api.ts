@@ -228,9 +228,12 @@ export function calculateValuation(
   interestRate: number,
   outstandingShares: number | null,
 ) {
-  // Filter for data with actual revenue in the current year
-  const currentYear = new Date().getFullYear()
-  const ytdData = earningsData.filter((d) => d.revenueActual !== null && new Date(d.date).getFullYear() === currentYear)
+  // Filter for recent actual revenue data (most recent 4 quarters)
+  const actualData = earningsData
+    .filter((d) => d.revenueActual !== null)
+    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+
+  const ytdData = actualData.slice(0, 4)
 
   if (ytdData.length === 0) {
     console.log(`No YTD revenue data for ${ticker}`)
