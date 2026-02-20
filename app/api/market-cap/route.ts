@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server"
 
-const API_KEY = process.env.FMP_API_KEY || "NyXhogok31VrQ6M9tkT8ej87CpTjWTIR"
+const API_KEY = process.env.FMP_API_KEY
 const ALLOWED_ORIGINS = process.env.ALLOWED_ORIGINS?.split(",") || ["http://localhost:3000"]
 
 function corsHeaders(origin: string | null) {
@@ -24,6 +24,13 @@ export async function GET(request: NextRequest) {
 
   if (!symbol) {
     return NextResponse.json({ error: "Symbol is required" }, { status: 400, headers: corsHeaders(origin) })
+  }
+
+  if (!API_KEY) {
+    return NextResponse.json(
+      { error: "API key not configured" },
+      { status: 500, headers: corsHeaders(origin) }
+    )
   }
 
   try {

@@ -58,12 +58,12 @@ export default function FinancialDashboard() {
   const [sortOrder, setSortOrder] = useState<SortOrder>("none")
 
   useEffect(() => {
-    console.log("[v0] Loading groups from localStorage")
+    console.log("[IndustrialYield] Loading groups from localStorage")
     const savedGroups = localStorage.getItem("financial-dashboard-groups")
     if (savedGroups) {
       try {
         const parsed = JSON.parse(savedGroups)
-        console.log("[v0] Parsed saved groups:", parsed)
+        console.log("[IndustrialYield] Parsed saved groups:", parsed)
         if (Array.isArray(parsed)) {
           if (!parsed.some(g => g.isDefault)) {
             parsed.push({ ...DEFAULT_GROUP, isDefault: true })
@@ -83,22 +83,22 @@ export default function FinancialDashboard() {
             setGroups([{ ...DEFAULT_GROUP, isDefault: true }])
           }
         } else {
-          console.log("[v0] No valid saved groups, using default")
+          console.log("[IndustrialYield] No valid saved groups, using default")
           setGroups([{ ...DEFAULT_GROUP, isDefault: true }])
         }
       } catch (error) {
-        console.error("[v0] Error parsing saved groups:", error)
+        console.error("[IndustrialYield] Error parsing saved groups:", error)
         setGroups([{ ...DEFAULT_GROUP, isDefault: true }])
       }
     } else {
-      console.log("[v0] No saved groups found, using default")
+      console.log("[IndustrialYield] No saved groups found, using default")
       setGroups([{ ...DEFAULT_GROUP, isDefault: true }])
     }
   }, [])
 
   useEffect(() => {
     if (groups.length > 0) {
-      console.log("[v0] Saving groups to localStorage:", groups)
+      console.log("[IndustrialYield] Saving groups to localStorage:", groups)
       localStorage.setItem("financial-dashboard-groups", JSON.stringify(groups))
     }
   }, [groups])
@@ -130,7 +130,7 @@ export default function FinancialDashboard() {
       const results = await Promise.all(valuationPromises)
       setValuations(results.filter((v) => v !== null) as TickerValuation[])
     } catch (error) {
-      console.error("[v0] Error loading financial data:", error)
+      console.error("[IndustrialYield] Error loading financial data:", error)
     } finally {
       setLoading(false)
     }

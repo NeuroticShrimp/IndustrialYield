@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
 import { ExternalLink, Building2, Globe, MapPin, Users, TrendingUp, DollarSign } from "lucide-react"
 import { useEffect, useState } from "react"
-import { fetchCompanyProfile, fetchMarketCap, fetchDividendData, type CompanyProfile } from "@/lib/financial-api"
+import { fetchCompanyProfile, fetchMarketCap, fetchDividendData, type CompanyProfile, type DividendData } from "@/lib/financial-api"
 
 interface CompanyInfoModalProps {
   ticker: string
@@ -17,7 +17,7 @@ export function CompanyInfoModal({ ticker, open, onOpenChange }: CompanyInfoModa
   const [profile, setProfile] = useState<CompanyProfile | null>(null)
   const [marketCap, setMarketCap] = useState<number | null>(null)
   const [dividendInfo, setDividendInfo] = useState<{
-    latestDividend: any
+    latestDividend: DividendData | null
     annualYield: number | null
     frequency: string | null
   } | null>(null)
@@ -25,11 +25,11 @@ export function CompanyInfoModal({ ticker, open, onOpenChange }: CompanyInfoModa
 
   useEffect(() => {
     if (open && ticker) {
-      console.log(`[v0] Opening company info modal for ${ticker}`)
+      console.log(`[IndustrialYield] Opening company info modal for ${ticker}`)
       setLoading(true)
       Promise.all([fetchCompanyProfile(ticker), fetchMarketCap(ticker), fetchDividendData(ticker)])
         .then(([profileData, marketCapData, dividendData]) => {
-          console.log(`[v0] Company info loaded for ${ticker}:`, { profileData, marketCapData, dividendData })
+          console.log(`[IndustrialYield] Company info loaded for ${ticker}:`, { profileData, marketCapData, dividendData })
           setProfile(profileData)
           setMarketCap(marketCapData)
           setDividendInfo(dividendData)
