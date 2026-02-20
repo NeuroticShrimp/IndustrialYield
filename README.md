@@ -32,6 +32,7 @@ Industrial Yield calculates a comparative metric for industrial stocks by dividi
 ## Tech Stack
 
 - **Framework**: [Next.js 16](https://nextjs.org/) (App Router)
+- **Runtime**: [React 19.2](https://react.dev/)
 - **Language**: TypeScript (strict mode)
 - **UI Components**: [shadcn/ui](https://ui.shadcn.com/) + [Radix UI](https://www.radix-ui.com/)
 - **Styling**: [Tailwind CSS v4](https://tailwindcss.com/)
@@ -42,7 +43,7 @@ Industrial Yield calculates a comparative metric for industrial stocks by dividi
 
 ### Prerequisites
 
-- Node.js 18+ (or Bun/pnpm)
+- [Bun](https://bun.sh/) (recommended) or Node.js 18+
 - FMP API Key from [Financial Modeling Prep](https://site.financialmodelingprep.com/developer/docs)
 
 ### Installation
@@ -55,11 +56,9 @@ Industrial Yield calculates a comparative metric for industrial stocks by dividi
 
 2. **Install dependencies**
    ```bash
-   npm install
-   # or
    bun install
-   # or
-   pnpm install
+   # or with npm/pnpm
+   npm install
    ```
 
 3. **Configure environment variables**
@@ -72,7 +71,7 @@ Industrial Yield calculates a comparative metric for industrial stocks by dividi
 
 4. **Run the development server**
    ```bash
-   npm run dev
+   bun run dev
    ```
 
 5. **Open your browser**
@@ -82,8 +81,8 @@ Industrial Yield calculates a comparative metric for industrial stocks by dividi
 ### Building for Production
 
 ```bash
-npm run build
-npm start
+bun run build
+bun run start
 ```
 
 ## Usage
@@ -170,10 +169,11 @@ Fetches current 10-year treasury rate.
 ### Available Commands
 
 ```bash
-npm run dev      # Start development server
-npm run build    # Build for production
-npm run start    # Start production server
-npm run lint     # Lint codebase
+bun run dev      # Start development server
+bun run build    # Build for production
+bun run start    # Start production server
+bun run lint     # Lint codebase
+bunx tsc --noEmit  # Type check without emitting files
 ```
 
 ### Testing
