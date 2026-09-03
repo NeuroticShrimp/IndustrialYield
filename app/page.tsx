@@ -1,6 +1,7 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
+import { useQuery, useQueries, useQueryClient } from "@tanstack/react-query"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -51,11 +52,9 @@ export default function FinancialDashboard() {
   const [showNewGroupInput, setShowNewGroupInput] = useState(false)
 
   const [newTicker, setNewTicker] = useState("")
-  const [valuations, setValuations] = useState<TickerValuation[]>([])
-  const [loading, setLoading] = useState(false)
   const [percentageRange, setPercentageRange] = useState(10)
-  const [averageInterestRate, setAverageInterestRate] = useState(0)
   const [sortOrder, setSortOrder] = useState<SortOrder>("none")
+  const queryClient = useQueryClient()
 
   useEffect(() => {
     console.log("[IndustrialYield] Loading groups from localStorage")
@@ -98,43 +97,51 @@ export default function FinancialDashboard() {
 
   useEffect(() => {
     if (groups.length > 0) {
-      console.log("[IndustrialYield] Saving groups to localStorage:", groups)
       localStorage.setItem("financial-dashboard-groups", JSON.stringify(groups))
     }
   }, [groups])
 
-  useEffect(() => {
-    if (groups.length > 0 && groups[currentGroupIndex]?.tickers.length > 0) {
-      loadData()
-    }
-  }, [currentGroupIndex, groups])
-
   const currentGroup = groups[currentGroupIndex]
   const tickers = currentGroup?.tickers || []
 
-  const loadData = async () => {
-    setLoading(true)
-    try {
-      const treasuryData = await fetchTreasuryRates()
-      const avgRate = treasuryData.averageRate
-      setAverageInterestRate(avgRate)
+  const treasuryQuery = useQuery({
+    queryKey: ["treasury"],
+    queryFn: fetchTreasuryRates,
+  })
 
-      const valuationPromises = tickers.map(async (ticker) => {
+  const averageInterestRate = treasuryQuery.data?.averageRate ?? 0
+
+  const tickerQueries = useQueries({
+    queries: tickers.map((ticker) => ({
+      queryKey: ["ticker", ticker],
+      queryFn: async () => {
         const [earningsData, outstandingShares] = await Promise.all([
           fetchEarningsData(ticker),
           fetchOutstandingShares(ticker),
         ])
-        return calculateValuation(ticker, earningsData, avgRate, outstandingShares)
-      })
+        return { earningsData, outstandingShares }
+      },
+    })),
+  })
 
-      const results = await Promise.all(valuationPromises)
-      setValuations(results.filter((v) => v !== null) as TickerValuation[])
-    } catch (error) {
-      console.error("[IndustrialYield] Error loading financial data:", error)
-    } finally {
-      setLoading(false)
-    }
-  }
+  const valuations = useMemo(() => {
+    if (!treasuryQuery.data) return [] as TickerValuation[]
+
+    return tickerQueries
+      .map((query, index) => {
+        if (!query.data) return null
+        return calculateValuation(
+          tickers[index],
+          query.data.earningsData,
+          treasuryQuery.data.averageRate,
+          query.data.outstandingShares,
+        )
+      })
+      .filter((v): v is TickerValuation => v !== null)
+  }, [tickerQueries, treasuryQuery.data, tickers])
+
+  const loading = treasuryQuery.isPending || tickerQueries.some((query) => query.isPending)
+  const hasErrors = treasuryQuery.isError || tickerQueries.some((query) => query.isError)
 
   const addTicker = () => {
     const ticker = newTicker.trim().toUpperCase()
@@ -157,7 +164,6 @@ export default function FinancialDashboard() {
       const updatedGroups = [...groups]
       updatedGroups[currentGroupIndex].tickers = []
       setGroups(updatedGroups)
-      setValuations([])
     }
   }
 
@@ -371,6 +377,22 @@ export default function FinancialDashboard() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Error State */}
+        {hasErrors && !loading && (
+          <Card className="border-destructive bg-destructive/5">
+            <CardContent className="pt-6 flex items-center justify-between gap-4">
+              <p className="text-sm text-destructive">
+                {treasuryQuery.isError
+                  ? `Failed to load treasury rates: ${treasuryQuery.error?.message ?? "unknown error"}`
+                  : "Some ticker data failed to load (usually an API rate limit)."}
+              </p>
+              <Button variant="outline" onClick={() => queryClient.invalidateQueries()}>
+                Retry
+              </Button>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Loading State */}
         {loading && (

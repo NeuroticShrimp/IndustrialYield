@@ -4,7 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
 import { ExternalLink, Building2, Globe, MapPin, Users, TrendingUp, DollarSign } from "lucide-react"
-import { useEffect, useState } from "react"
+import { useQuery } from "@tanstack/react-query"
 import { fetchCompanyProfile, fetchMarketCap, fetchDividendData, type CompanyProfile, type DividendData } from "@/lib/financial-api"
 
 interface CompanyInfoModalProps {
@@ -14,29 +14,30 @@ interface CompanyInfoModalProps {
 }
 
 export function CompanyInfoModal({ ticker, open, onOpenChange }: CompanyInfoModalProps) {
-  const [profile, setProfile] = useState<CompanyProfile | null>(null)
-  const [marketCap, setMarketCap] = useState<number | null>(null)
-  const [dividendInfo, setDividendInfo] = useState<{
+  const profileQuery = useQuery({
+    queryKey: ["profile", ticker],
+    queryFn: () => fetchCompanyProfile(ticker),
+    enabled: open,
+  })
+  const marketCapQuery = useQuery({
+    queryKey: ["market-cap", ticker],
+    queryFn: () => fetchMarketCap(ticker),
+    enabled: open,
+  })
+  const dividendQuery = useQuery({
+    queryKey: ["dividends", ticker],
+    queryFn: () => fetchDividendData(ticker),
+    enabled: open,
+  })
+
+  const loading = profileQuery.isPending || marketCapQuery.isPending || dividendQuery.isPending
+  const profile: CompanyProfile | null = profileQuery.data ?? null
+  const marketCap: number | null = marketCapQuery.data ?? null
+  const dividendInfo: {
     latestDividend: DividendData | null
     annualYield: number | null
     frequency: string | null
-  } | null>(null)
-  const [loading, setLoading] = useState(false)
-
-  useEffect(() => {
-    if (open && ticker) {
-      console.log(`[IndustrialYield] Opening company info modal for ${ticker}`)
-      setLoading(true)
-      Promise.all([fetchCompanyProfile(ticker), fetchMarketCap(ticker), fetchDividendData(ticker)])
-        .then(([profileData, marketCapData, dividendData]) => {
-          console.log(`[IndustrialYield] Company info loaded for ${ticker}:`, { profileData, marketCapData, dividendData })
-          setProfile(profileData)
-          setMarketCap(marketCapData)
-          setDividendInfo(dividendData)
-        })
-        .finally(() => setLoading(false))
-    }
-  }, [open, ticker])
+  } | null = dividendQuery.data ?? null
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

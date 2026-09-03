@@ -36,10 +36,14 @@ export async function GET(request: NextRequest) {
   try {
     const response = await fetch(
       `https://financialmodelingprep.com/stable/market-capitalization?symbol=${symbol}&apikey=${API_KEY}`,
+      { next: { revalidate: 300 } },
     )
 
     if (!response.ok) {
-      throw new Error(`Failed to fetch market cap for ${symbol}`)
+      const error = await response.json().catch(() => null)
+      const message = error?.["Error Message"] ?? `Upstream error fetching market cap for ${symbol}`
+      console.error(`Error fetching market cap for ${symbol} (${response.status}):`, message)
+      return NextResponse.json({ error: message }, { status: response.status, headers: corsHeaders(origin) })
     }
 
     const data = await response.json()

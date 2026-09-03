@@ -28,10 +28,15 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const response = await fetch(`https://financialmodelingprep.com/stable/treasury-rates?apikey=${API_KEY}`)
+    const response = await fetch(`https://financialmodelingprep.com/stable/treasury-rates?apikey=${API_KEY}`, {
+      next: { revalidate: 300 },
+    })
 
     if (!response.ok) {
-      throw new Error("Failed to fetch treasury rates")
+      const error = await response.json().catch(() => null)
+      const message = error?.["Error Message"] ?? "Upstream error fetching treasury rates"
+      console.error(`Error fetching treasury rates (${response.status}):`, message)
+      return NextResponse.json({ error: message }, { status: response.status, headers: corsHeaders(origin) })
     }
 
     const data = await response.json()

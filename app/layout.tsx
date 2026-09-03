@@ -1,10 +1,11 @@
 import type { Metadata } from 'next'
 import { Analytics } from '@vercel/analytics/next'
+import { QueryProvider } from '@/components/query-provider'
 import './globals.css'
 
 export const metadata: Metadata = {
   title: 'Industrial Yield',
-  description: 'Financial analysis dashboard for evaluating industrial stocks using revenue-to-interest-rate valuation',
+  description: 'Financial analysis dashboard for evaluating American industrial stocks using revenue-to-interest-rate valuation',
 }
 
 export default function RootLayout({
@@ -15,7 +16,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`font-sans antialiased`}>
-        {children}
+        <QueryProvider>{children}</QueryProvider>
         <Analytics />
       </body>
     </html>
