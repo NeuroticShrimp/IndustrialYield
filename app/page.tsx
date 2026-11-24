@@ -45,6 +45,36 @@ const DEFAULT_GROUP: TickerGroup = {
   ],
 }
 
+/**
+ * Reads and validates the persisted ticker groups from localStorage.
+ * Returns null when there is nothing valid to restore.
+ */
+function readStoredGroups(): TickerGroup[] | null {
+  const saved = localStorage.getItem("financial-dashboard-groups")
+  if (!saved) return null
+
+  try {
+    const parsed = JSON.parse(saved)
+    if (!Array.isArray(parsed)) return null
+
+    // Ensure exactly one complete default group is present.
+    const defaultIndex = parsed.findIndex((g) => g.isDefault)
+    if (defaultIndex === -1) {
+      parsed.push({ ...DEFAULT_GROUP, isDefault: true })
+    } else {
+      const defaultTickers = new Set(parsed[defaultIndex].tickers)
+      if (!DEFAULT_GROUP.tickers.every((t) => defaultTickers.has(t))) {
+        parsed[defaultIndex] = { ...DEFAULT_GROUP, isDefault: true }
+      }
+    }
+
+    return parsed.length > 0 ? parsed : null
+  } catch (error) {
+    console.error("[IndustrialYield] Error parsing saved groups:", error)
+    return null
+  }
+}
+
 export default function FinancialDashboard() {
   const [groups, setGroups] = useState<TickerGroup[]>([{ ...DEFAULT_GROUP, isDefault: true }])
   const [currentGroupIndex, setCurrentGroupIndex] = useState(0)
@@ -57,43 +87,8 @@ export default function FinancialDashboard() {
   const queryClient = useQueryClient()
 
   useEffect(() => {
-    console.log("[IndustrialYield] Loading groups from localStorage")
-    const savedGroups = localStorage.getItem("financial-dashboard-groups")
-    if (savedGroups) {
-      try {
-        const parsed = JSON.parse(savedGroups)
-        console.log("[IndustrialYield] Parsed saved groups:", parsed)
-        if (Array.isArray(parsed)) {
-          if (!parsed.some(g => g.isDefault)) {
-            parsed.push({ ...DEFAULT_GROUP, isDefault: true })
-          } else {
-            // Check if the default group is missing any original tickers
-            const defaultGroupIndex = parsed.findIndex(g => g.isDefault)
-            if (defaultGroupIndex !== -1) {
-              const defaultGroup = parsed[defaultGroupIndex]
-              const defaultGroupTickers = new Set(defaultGroup.tickers)
-              if (!DEFAULT_GROUP.tickers.every(t => defaultGroupTickers.has(t))) {
-                parsed[defaultGroupIndex] = { ...DEFAULT_GROUP, isDefault: true }
-              }
-            }
-          }
-          if (parsed.length > 0) {
-            setGroups(parsed)
-          } else {
-            setGroups([{ ...DEFAULT_GROUP, isDefault: true }])
-          }
-        } else {
-          console.log("[IndustrialYield] No valid saved groups, using default")
-          setGroups([{ ...DEFAULT_GROUP, isDefault: true }])
-        }
-      } catch (error) {
-        console.error("[IndustrialYield] Error parsing saved groups:", error)
-        setGroups([{ ...DEFAULT_GROUP, isDefault: true }])
-      }
-    } else {
-      console.log("[IndustrialYield] No saved groups found, using default")
-      setGroups([{ ...DEFAULT_GROUP, isDefault: true }])
-    }
+    const stored = readStoredGroups()
+    setGroups(stored ?? [{ ...DEFAULT_GROUP, isDefault: true }])
   }, [])
 
   useEffect(() => {
