@@ -131,7 +131,7 @@ export function CompanyInfoModal({ ticker, open, onOpenChange }: CompanyInfoModa
                 <Users className="h-5 w-5 text-muted-foreground mt-0.5" />
                 <div>
                   <div className="text-sm text-muted-foreground">Employees</div>
-                  <div className="font-medium">{profile.fullTimeEmployees.toLocaleString()}</div>
+                  <div className="font-medium">{profile.fullTimeEmployees.toLocaleString("en-US")}</div>
                 </div>
               </div>
 

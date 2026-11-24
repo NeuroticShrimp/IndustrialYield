@@ -71,7 +71,8 @@ export default function FinancialDashboard() {
             const defaultGroupIndex = parsed.findIndex(g => g.isDefault)
             if (defaultGroupIndex !== -1) {
               const defaultGroup = parsed[defaultGroupIndex]
-              if (!DEFAULT_GROUP.tickers.every(t => defaultGroup.tickers.includes(t))) {
+              const defaultGroupTickers = new Set(defaultGroup.tickers)
+              if (!DEFAULT_GROUP.tickers.every(t => defaultGroupTickers.has(t))) {
                 parsed[defaultGroupIndex] = { ...DEFAULT_GROUP, isDefault: true }
               }
             }
@@ -102,7 +103,12 @@ export default function FinancialDashboard() {
   }, [groups])
 
   const currentGroup = groups[currentGroupIndex]
-  const tickers = currentGroup?.tickers || []
+  // Memoized: the `|| []` fallback would otherwise create a fresh array
+  // reference on every render and thrash dependent memos/effects.
+  const tickers = useMemo(
+    () => groups[currentGroupIndex]?.tickers || [],
+    [groups, currentGroupIndex],
+  )
 
   const treasuryQuery = useQuery({
     queryKey: ["treasury"],
@@ -271,7 +277,7 @@ export default function FinancialDashboard() {
           <CardContent className="space-y-4">
             <div className="flex flex-wrap gap-2">
               {groups.map((group, index) => (
-                 <div key={index} className="flex items-center gap-0">
+                 <div key={group.name} className="flex items-center gap-0">
                    <Button
                      variant={currentGroupIndex === index ? "default" : "outline"}
                      onClick={() => setCurrentGroupIndex(index)}
@@ -283,6 +289,7 @@ export default function FinancialDashboard() {
                     <Button
                       variant={currentGroupIndex === index ? "default" : "outline"}
                       size="icon"
+                      aria-label={`Delete group ${group.name}`}
                       onClick={() => deleteGroup(index)}
                       className="rounded-l-none border-l-0 h-10 w-10"
                     >
@@ -351,7 +358,7 @@ export default function FinancialDashboard() {
               {tickers.map((ticker) => (
                 <Badge key={ticker} variant="secondary" className="px-3 py-1.5 text-sm">
                   {ticker}
-                  <button onClick={() => removeTicker(ticker)} className="ml-2 hover:text-destructive">
+                  <button aria-label={`Remove ${ticker}`} onClick={() => removeTicker(ticker)} className="ml-2 hover:text-destructive">
                     <X className="h-3 w-3" />
                   </button>
                 </Badge>
@@ -359,8 +366,9 @@ export default function FinancialDashboard() {
             </div>
 
             <div className="flex items-center gap-4">
-              <label className="text-sm font-medium">Percentage Range:</label>
+              <label htmlFor="percentage-range" className="text-sm font-medium">Percentage Range:</label>
               <Input
+                id="percentage-range"
                 type="number"
                 value={percentageRange}
                 onChange={(e) => setPercentageRange(Number(e.target.value))}

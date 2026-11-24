@@ -59,10 +59,10 @@ export function TickerCard({ valuation, groupUpperBound, groupLowerBound }: Tick
           <div className="flex items-center justify-between">
             <CardTitle className="text-2xl font-bold">{ticker}</CardTitle>
             <div className="flex items-center gap-2">
-              <Button variant="ghost" size="icon" onClick={() => setShowCompanyInfo(true)} className="h-8 w-8">
+              <Button variant="ghost" size="icon" aria-label="Company information" onClick={() => setShowCompanyInfo(true)} className="h-8 w-8">
                 <Info className="h-4 w-4" />
               </Button>
-              <Button variant="ghost" size="icon" onClick={() => setShowCalculation(true)} className="h-8 w-8">
+              <Button variant="ghost" size="icon" aria-label="Calculation breakdown" onClick={() => setShowCalculation(true)} className="h-8 w-8">
                 <Calculator className="h-4 w-4" />
               </Button>
             </div>
