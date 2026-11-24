@@ -22,7 +22,6 @@ export function TickerCard({ valuation, groupUpperBound, groupLowerBound }: Tick
 
   const isAboveUpper = myValue > groupUpperBound
   const isBelowLower = myValue < groupLowerBound
-  const isWithinBounds = !isAboveUpper && !isBelowLower
 
   const formatInBillions = (value: number) => {
     return (value / 1_000_000_000).toFixed(2)

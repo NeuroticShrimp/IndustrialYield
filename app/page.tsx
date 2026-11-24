@@ -239,7 +239,7 @@ export default function FinancialDashboard() {
             <CardContent className="pt-6">
               <div className="space-y-4 text-sm leading-relaxed">
                 <p>
-                  This application takes an input of "leading industrial stocks" as determined by the user. It
+                  This application takes an input of “leading industrial stocks” as determined by the user. It
                   calculates the quarterly revenue divided by the national treasury interest rate for each stock, and
                   returns the group average as well as individual values for comparison.
                 </p>
@@ -252,8 +252,8 @@ export default function FinancialDashboard() {
                   stocks. Think items like electricity, air planes, water, construction equipment.
                 </p>
                 <p className="text-muted-foreground italic">
-                  I am not qualified to provide financial advice, this is based off a technique described in "Security
-                  Analysis" by Benjamin Graham and David Dodd.
+                  I am not qualified to provide financial advice, this is based off a technique described in “Security
+                  Analysis” by Benjamin Graham and David Dodd.
                 </p>
               </div>
             </CardContent>
